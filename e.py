@@ -1,66 +1,48 @@
-print("Коли над академією ШАГ повисла загроза повного знищення силами конкурентів, герої встали на її захист, вступаючи у двобої із суперниками")
-
 import random
+
+print("Коли над академією ШАГ повисла загроза повного знищення силами конкурентів, герої встали на її захист.")
 
 class Character:
     def __init__(self, name, hp, level):
-        self.name = name
-        self.hp = hp
-        self.level = level
+        self.name, self.hp, self.level = name, hp, level
 
     def attack(self):
         return self.level * 5
 
     def defend(self, damage):
-        self.hp -= damage
-        if self.hp < 0:
-            self.hp = 0
+        self.hp = max(0, self.hp - damage)
 
     def status(self):
-        print(f"{self.name}: HP = {self.hp}, Level = {self.level}")
+        print(f"{self.name}: HP={self.hp}, Level={self.level}")
+
 
 class Warrior(Character):
-    def __init__(self, name, hp, level):
-        super().__init__(name, hp, level)
-        self.armor = 5
+    armor = 5
 
     def attack(self):
         return self.level * 7 + random.randint(1, 5)
 
     def defend(self, damage):
-        reduced_damage = max(0, damage - self.armor)
-        self.hp -= reduced_damage
-        if self.hp < 0:
-            self.hp = 0
+        self.hp = max(0, self.hp - max(0, damage - self.armor))
+
 
 class Mage(Character):
-    def __init__(self, name, hp, level):
-        super().__init__(name, hp, level)
-
     def attack(self):
-        bonus = random.randint(5, 10)
-        return self.level * 6 + bonus
+        return self.level * 6 + random.randint(5, 10)
 
-    def defend(self, damage):
-        self.hp -= damage
-        if self.hp < 0:
-            self.hp = 0
 
 class Scout(Character):
-    def __init__(self, name, hp, level):
-        super().__init__(name, hp, level)
-        self.evasion = 0.3
+    evasion = 0.3
 
     def attack(self):
         return self.level * 5 + random.randint(2, 8)
 
     def defend(self, damage):
         if random.random() < self.evasion:
-            print(f"{self.name} ухилився від атаки!")
+            print(f"{self.name} ухилився!")
         else:
-            self.hp -= damage
-            if self.hp < 0:
-                self.hp = 0
+            self.hp = max(0, self.hp - damage)
+
 
 class Team:
     def __init__(self, name):
@@ -71,93 +53,63 @@ class Team:
         self.members.append(character)
 
     def total_power(self):
-        return sum(member.level for member in self.members)
+        return sum(c.level for c in self.members)
 
     def find_strongest(self):
-        return max(self.members, key=lambda member: member.level)
+        return max(self.members, key=lambda c: c.level)
+
 
 class Arena:
-    def __init__(self, fighter1, fighter2):
-        self.fighter1 = fighter1
-        self.fighter2 = fighter2
-        self.round_log = []
+    def __init__(self, f1, f2):
+        self.f1, self.f2 = f1, f2
 
     def battle(self):
-        round_number = 1
+        round_num = 1
 
-        print("\n ПОЧАТОК БОЮ")
+        while self.f1.hp > 0 and self.f2.hp > 0:
+            print(f"\nРаунд {round_num}")
 
-        while self.fighter1.hp > 0 and self.fighter2.hp > 0:
-            print(f"\nРаунд {round_number}")
+            dmg = self.f1.attack()
+            self.f2.defend(dmg)
+            print(f"{self.f1.name} атакує {self.f2.name} на {dmg}")
 
-            damage1 = self.fighter1.attack()
-            self.fighter2.defend(damage1)
-
-            print(f"{self.fighter1.name} атакує {self.fighter2.name} на {damage1} урону")
-
-            if self.fighter2.hp <= 0:
-                self.round_log.append(f"Раунд {round_number}: {self.fighter1.name} переміг")
+            if self.f2.hp <= 0:
                 break
 
-            damage2 = self.fighter2.attack()
-            self.fighter1.defend(damage2)
+            dmg = self.f2.attack()
+            self.f1.defend(dmg)
+            print(f"{self.f2.name} атакує {self.f1.name} на {dmg}")
 
-            print(f"{self.fighter2.name} атакує {self.fighter1.name} на {damage2} урону")
+            self.f1.status()
+            self.f2.status()
+            round_num += 1
 
-            self.fighter1.status()
-            self.fighter2.status()
-
-            self.round_log.append(
-                f"Раунд {round_number}: {self.fighter1.name} HP={self.fighter1.hp}, "
-                f"{self.fighter2.name} HP={self.fighter2.hp}")
-
-            round_number += 1
-
-        winner = (
-            self.fighter1
-            if self.fighter1.hp > 0
-            else self.fighter2
-        )
-
+        winner = self.f1 if self.f1.hp > 0 else self.f2
         print(f"\nПереможець: {winner.name}")
-        print(f"{winner.name} Захистив академію ШАГ!")
-
-        print("\n ЛОГ БОЮ")
-        for log in self.round_log:
-            print(log)
+        print(f"{winner.name} захистив академію ШАГ!")
 
 
-def create_character(number):
-    print(f"\nСтворення персонажа {number}")
+def create_character(num):
+    print(f"\nСтворення персонажа {num}")
     name = input("Ім'я: ")
-
-    print("Оберіть клас:")
-    print("1 - Warrior")
-    print("2 - Mage")
-    print("3 - Scout")
-
-    choice = input("Ваш вибір: ")
-    level = int(input("Рівень персонажа: "))
+    choice = input("Клас (1-Warrior, 2-Mage, 3-Scout): ")
+    level = int(input("Рівень: "))
 
     if choice == "1":
         return Warrior(name, 120, level)
-    elif choice == "2":
+    if choice == "2":
         return Mage(name, 90, level)
-    else:
-        return Scout(name, 100, level)
+    return Scout(name, 100, level)
 
-character1 = create_character(1)
-character2 = create_character(2)
+
+c1 = create_character(1)
+c2 = create_character(2)
 
 team = Team("Герої")
-team.add_character(character1)
-team.add_character(character2)
+team.add_character(c1)
+team.add_character(c2)
 
-print("\n ІНФОРМАЦІЯ ПРО КОМАНДУ")
-print("Загальна сила команди:", team.total_power())
+print("\nЗагальна сила команди:", team.total_power())
+print("Найсильніший:", team.find_strongest().name)
 
-strongest = team.find_strongest()
-print(f"Найсильніший персонаж: {strongest.name} (Рівень {strongest.level})")
-
-arena = Arena(character1, character2)
-arena.battle()
+Arena(c1, c2).battle()
