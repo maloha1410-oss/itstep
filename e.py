@@ -1,6 +1,6 @@
 import random
 
-print("Коли над академією ШАГ повисла загроза повного знищення силами конкурентів, герої встали на її захист.")
+print("Коли над академією ШАГ повисла загроза повного знищення силами конкурентів, команда учнів почала проводити турнірські бої, щоб відновити її репутацію.")
 
 class Character:
     def __init__(self, name, hp, level):
@@ -55,9 +55,6 @@ class Team:
     def total_power(self):
         return sum(c.level for c in self.members)
 
-    def find_strongest(self):
-        return max(self.members, key=lambda c: c.level)
-
 
 class Arena:
     def __init__(self, f1, f2):
@@ -86,7 +83,7 @@ class Arena:
 
         winner = self.f1 if self.f1.hp > 0 else self.f2
         print(f"\nПереможець: {winner.name}")
-        print(f"{winner.name} захистив академію ШАГ!")
+        print(f"{winner.name} стає чемпіоном академії ШАГ!")
 
 
 def create_character(num):
@@ -110,6 +107,5 @@ team.add_character(c1)
 team.add_character(c2)
 
 print("\nЗагальна сила команди:", team.total_power())
-print("Найсильніший:", team.find_strongest().name)
 
 Arena(c1, c2).battle()
