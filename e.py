@@ -1,3 +1,5 @@
+print("Коли над академією ШАГ повисла загроза повного знищення силами конкурентів, герої встали на її захист, вступаючи у двобої із суперниками")
+
 import random
 
 class Character:
@@ -118,6 +120,7 @@ class Arena:
         )
 
         print(f"\nПереможець: {winner.name}")
+        print(f"{winner.name} Захистив академію ШАГ!")
 
         print("\n ЛОГ БОЮ")
         for log in self.round_log:
